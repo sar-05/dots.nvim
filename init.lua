@@ -354,7 +354,7 @@ require('lazy').setup({
       spec = {
         { '<leader>s', group = '[S]earch' },
         { '<leader>t', group = '[T]oggle' },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        -- { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
       },
     },
   },
@@ -586,9 +586,12 @@ require('lazy').setup({
           --
           local client = vim.lsp.get_client_by_id(event.data.client_id)
 
-          -- Disable hovering for Pyright so Ruff can handle it
+          -- Disable some capabilities of Pyright so Ruff can handle it
           if client and client.name == 'pyright' then
             client.server_capabilities.hoverProvider = false
+            client.server_capabilities.declarationProvider = false
+            client.server_capabilities.definitionProvider = false
+            client.server_capabilities.referencesProvider = false
           end
 
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
