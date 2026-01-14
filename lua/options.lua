@@ -30,6 +30,11 @@ end)
 -- Enable break indent
 vim.o.breakindent = true
 
+-- Disable folding on startup
+vim.opt.foldenable = false
+-- Preventing auto-folding everything upon manual folding
+vim.opt.foldlevel = 20
+
 -- Save undo history
 vim.o.undofile = true
 
