@@ -777,7 +777,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, lua = true }
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         else
@@ -961,21 +961,52 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
+    branch = 'master',
+    lazy = false,
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
+    opts = {},
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+      config = function()
+        require('nvim-treesitter.configs').setup {
+          ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+          -- Autoinstall languages that are not installed
+          auto_install = true,
+          highlight = {
+            enable = true,
+            -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
+            --  If you are experiencing weird indenting issues, add the language to
+            --  the list of additional_vim_regex_highlighting and disabled languages for indent.
+            additional_vim_regex_highlighting = { 'ruby' },
+          },
+          indent = { enable = true, disable = { 'ruby' } },
+
+          textobjects = {
+            select = {
+              enable = true,
+
+              -- Automatically jump forward to textobj, similar to targets.vim
+              lookahead = true,
+
+              keymaps = {
+                -- You can use the capture groups defined in textobjects.scm
+                -- ['af'] = '@function.outer',
+                -- ['if'] = '@function.inner',
+                ['af'] = '@call.outer', -- a function call
+                ['if'] = '@call.inner', -- inside function call
+                ['ac'] = '@class.outer',
+                -- You can optionally set descriptions to the mappings (used in the desc parameter of
+                -- nvim_buf_set_keymap) which plugins like which-key display
+                ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+                -- You can also use captures from other query groups like `locals.scm`
+                ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
+              },
+            },
+          },
+        }
+      end,
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
